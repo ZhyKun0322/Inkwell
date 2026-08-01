@@ -1,0 +1,33 @@
+<% var title = 'For You' %>
+<% var active = 'feed' %>
+<%- include('partials/header') %>
+
+<div class="page-title-row">
+  <h1>For You</h1>
+  <a href="/write" class="btn btn-primary">+ New Story</a>
+</div>
+
+<% if (posts.length === 0) { %>
+  <div class="empty">No published stories yet. Be the first — <a href="/write">write one</a>.</div>
+<% } else { %>
+  <div class="shelf">
+    <% posts.forEach(function(post) { %>
+      <a href="/post/<%= post.id %>" class="book">
+        <div class="book-cover" style="background: <%- post.cover.gradient %>;">
+          <span class="initials"><%= post.cover.initials %></span>
+          <span class="cover-title"><%= post.title %></span>
+        </div>
+        <div class="book-info">
+          <span class="pill"><%= post.genre %></span>
+          <div class="author">by @<%= post.authorUsername %></div>
+          <div class="stats">
+            <span>♥ <%= post.likeCount %></span>
+            <span>💬 <%= post.commentCount %></span>
+          </div>
+        </div>
+      </a>
+    <% }) %>
+  </div>
+<% } %>
+
+<%- include('partials/footer') %>
