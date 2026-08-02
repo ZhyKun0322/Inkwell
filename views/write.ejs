@@ -1,0 +1,27 @@
+<% var title = 'Write' %>
+<% var active = 'write' %>
+<%- include('partials/header') %>
+
+<div class="page-title-row"><h1>Write a story</h1></div>
+
+<% if (error) { %><div class="error-box"><%= error %></div><% } %>
+
+<form method="POST" action="/write" style="background:var(--surface); padding:22px; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
+  <input type="text" name="title" class="title-input" placeholder="Story title" required>
+
+  <label for="genre">Genre</label>
+  <select name="genre" id="genre">
+    <% genres.forEach(function(g) { %>
+      <option value="<%= g %>"><%= g %></option>
+    <% }) %>
+  </select>
+
+  <textarea name="content" class="story-body" placeholder="Once upon a time…" required style="margin-top: 10px;"></textarea>
+
+  <div style="display:flex; gap:10px; margin-top: 20px;">
+    <button type="submit" name="action" value="publish" class="btn btn-primary">Publish</button>
+    <button type="submit" name="action" value="draft" class="btn btn-quiet">Save as draft</button>
+  </div>
+</form>
+
+<%- include('partials/footer') %>
