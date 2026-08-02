@@ -1,0 +1,84 @@
+<% var title = 'Friends' %>
+<% var active = 'friends' %>
+<%- include('partials/header') %>
+
+<div class="page-title-row"><h1>Friends</h1></div>
+
+<form method="GET" action="/friends" class="friend-search">
+  <input type="text" name="q" placeholder="Search by username…" value="<%= q %>">
+  <button type="submit" class="btn btn-primary">Search</button>
+</form>
+
+<% if (q) { %>
+  <div class="section-title">Results for "<%= q %>"</div>
+  <% if (results.length === 0) { %>
+    <div class="empty">No writers found with that username.</div>
+  <% } %>
+  <% results.forEach(function(r) { %>
+    <div class="friend-row">
+      <span class="who">
+        <span class="avatar avatar-sm" style="background: <%- r.user.avatar.gradient %>;"><%= r.user.avatar.initials %></span>
+        <span class="name"><a href="/profile/<%= r.user.username %>">@<%= r.user.username %></a></span>
+      </span>
+      <% if (!r.friendship) { %>
+        <form method="POST" action="/friends/request/<%= r.user.username %>">
+          <button type="submit" class="btn btn-primary">Add</button>
+        </form>
+      <% } else if (r.friendship.status === 'pending') { %>
+        <span class="pill draft">Pending</span>
+      <% } else { %>
+        <a href="/chat/<%= r.user.id %>" class="btn">Message</a>
+      <% } %>
+    </div>
+  <% }) %>
+<% } %>
+
+<% if (incoming.length > 0) { %>
+  <div class="section-title">Friend requests</div>
+  <% incoming.forEach(function(r) { %>
+    <div class="friend-row">
+      <span class="who">
+        <span class="avatar avatar-sm" style="background: <%- r.user.avatar.gradient %>;"><%= r.user.avatar.initials %></span>
+        <span class="name"><a href="/profile/<%= r.user.username %>">@<%= r.user.username %></a></span>
+      </span>
+      <div style="display:flex; gap:8px;">
+        <form method="POST" action="/friends/accept/<%= r.friendshipId %>">
+          <button type="submit" class="btn btn-primary">Accept</button>
+        </form>
+        <form method="POST" action="/friends/decline/<%= r.friendshipId %>">
+          <button type="submit" class="btn btn-quiet">Decline</button>
+        </form>
+      </div>
+    </div>
+  <% }) %>
+<% } %>
+
+<% if (outgoing.length > 0) { %>
+  <div class="section-title">Sent requests</div>
+  <% outgoing.forEach(function(r) { %>
+    <div class="friend-row">
+      <span class="who">
+        <span class="avatar avatar-sm" style="background: <%- r.user.avatar.gradient %>;"><%= r.user.avatar.initials %></span>
+        <span class="name"><a href="/profile/<%= r.user.username %>">@<%= r.user.username %></a></span>
+      </span>
+      <span class="pill draft">Waiting</span>
+    </div>
+  <% }) %>
+<% } %>
+
+<div class="section-title">Your friends (<%= friends.length %>)</div>
+<% if (friends.length === 0) { %>
+  <div class="empty">No friends yet. Search above to find writers.</div>
+<% } else { %>
+  <% friends.forEach(function(f) { %>
+    <div class="friend-row">
+      <span class="who">
+        <span class="avatar avatar-sm" style="background: <%- f.avatar.gradient %>;"><%= f.avatar.initials %></span>
+        <span class="name"><a href="/profile/<%= f.username %>">@<%= f.username %></a></span>
+      </span>
+      <a href="/chat/<%= f.id %>" class="btn btn-primary">Message</a>
+    </div>
+  <% }) %>
+<% } %>
+
+<%- include('partials/footer') %>
