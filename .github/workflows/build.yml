@@ -1,0 +1,56 @@
+name: Build Inkwell APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch: {}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      - name: Backup source
+        run: |
+          mkdir -p /tmp/backup
+          cp -r lib /tmp/backup/
+          cp pubspec.yaml /tmp/backup/
+
+      - name: Scaffold Android/iOS platform folders
+        run: flutter create --platforms=android --org=com.inkwell.app .
+
+      - name: Set minSdkVersion for Firebase
+        run: |
+          sed -i 's/flutter.minSdkVersion/23/' android/app/build.gradle.kts || \
+          sed -i 's/flutter.minSdkVersion/23/' android/app/build.gradle
+
+      - name: Restore source
+        run: |
+          rm -rf lib
+          cp -r /tmp/backup/lib .
+          cp /tmp/backup/pubspec.yaml .
+
+      - name: Get packages
+        run: flutter pub get
+
+      - name: Build release APK
+        run: flutter build apk --release
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: inkwell-apk
+          path: build/app/outputs/flutter-apk/app-release.apk

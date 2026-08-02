@@ -1,0 +1,92 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'edit_profile_page.dart';
+import 'settings_page.dart';
+import 'story_reader_page.dart';
+
+class MyProfilePage extends StatelessWidget {
+  const MyProfilePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final me = FirebaseAuth.instance.currentUser;
+    if (me == null) return const SizedBox.shrink();
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Profile'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings_outlined),
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const SettingsPage()),
+            ),
+          ),
+        ],
+      ),
+      body: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+        stream: FirebaseFirestore.instance.collection('users').doc(me.uid).snapshots(),
+        builder: (context, snapshot) {
+          final data = snapshot.data?.data();
+          if (data == null) return const Center(child: CircularProgressIndicator());
+          final friendCount = (data['friendIds'] as List?)?.length ?? 0;
+
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              children: [
+                const CircleAvatar(radius: 44, child: Icon(Icons.person, size: 44)),
+                const SizedBox(height: 12),
+                Text(data['username'] ?? '', style: Theme.of(context).textTheme.headlineSmall),
+                Text(me.email ?? '', style: Theme.of(context).textTheme.bodySmall),
+                if ((data['bio'] as String?)?.isNotEmpty == true)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Text(data['bio'], textAlign: TextAlign.center),
+                  ),
+                const SizedBox(height: 4),
+                Text('$friendCount friends', style: Theme.of(context).textTheme.bodySmall),
+                const SizedBox(height: 16),
+                OutlinedButton.icon(
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => EditProfilePage(currentData: data)),
+                  ),
+                  icon: const Icon(Icons.edit),
+                  label: const Text('Edit profile'),
+                ),
+                const Divider(height: 40),
+                Align(alignment: Alignment.centerLeft, child: Text('Your stories', style: Theme.of(context).textTheme.titleMedium)),
+                const SizedBox(height: 8),
+                StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                  stream: FirebaseFirestore.instance
+                      .collection('stories')
+                      .where('authorId', isEqualTo: me.uid)
+                      .orderBy('createdAt', descending: true)
+                      .snapshots(),
+                  builder: (context, storySnap) {
+                    final docs = storySnap.data?.docs ?? [];
+                    if (docs.isEmpty) return const Text('You haven\'t published anything yet.');
+                    return Column(
+                      children: docs.map((doc) {
+                        final d = doc.data();
+                        return Card(
+                          child: ListTile(
+                            title: Text(d['title'] ?? 'Untitled'),
+                            onTap: () => Navigator.of(context).push(
+                              MaterialPageRoute(builder: (_) => StoryReaderPage(storyId: doc.id, data: d)),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    );
+                  },
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
