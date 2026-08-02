@@ -1,11 +1,9 @@
 import 'package:firebase_core/firebase_core.dart';
 
-/// Fill these in from Firebase Console → Project settings → Your apps.
-/// These are public client identifiers, not secrets.
 const firebaseOptions = FirebaseOptions(
-  apiKey: 'PASTE_API_KEY_HERE',
-  appId: 'PASTE_APP_ID_HERE',
-  messagingSenderId: 'PASTE_MESSAGING_SENDER_ID_HERE',
-  projectId: 'PASTE_PROJECT_ID_HERE',
-  storageBucket: 'PASTE_STORAGE_BUCKET_HERE',
+  apiKey: 'AIzaSyBzbGLu_lFkVKPUpc91AslIUwofTYW_ryM',
+  appId: '1:331476455095:android:69c2ba32c2a8aa2bbc0732',
+  messagingSenderId: '331476455095',
+  projectId: 'inkwell-71170',
+  storageBucket: 'inkwell-71170.firebasestorage.app',
 );
