@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'register_page.dart';
+import '../widgets/brand.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -42,10 +43,8 @@ class _LoginPageState extends State<LoginPage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.auto_stories, size: 64, color: Color(0xFF6B4EFF)),
-                const SizedBox(height: 12),
-                Text('Inkwell', style: Theme.of(context).textTheme.headlineMedium),
-                const SizedBox(height: 32),
+                const BrandLogo(fontSize: 34),
+                const SizedBox(height: 40),
                 TextField(
                   controller: _emailCtrl,
                   keyboardType: TextInputType.emailAddress,

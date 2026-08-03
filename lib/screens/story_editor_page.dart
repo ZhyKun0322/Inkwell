@@ -40,22 +40,30 @@ class _StoryEditorPageState extends State<StoryEditorPage> {
       final profile = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
       final authorName = (profile.data()?['username'] as String?) ?? user.displayName ?? 'Anonymous';
 
-      await FirebaseFirestore.instance.collection('stories').add({
+      final storyRef = await FirebaseFirestore.instance.collection('stories').add({
         'authorId': user.uid,
         'authorName': authorName,
         'title': title,
-        'content': body,
         'genre': _genre,
         'coverColor': _coverColor,
+        'preview': body.length > 150 ? '${body.substring(0, 150)}...' : body,
+        'chapterCount': 1,
         'createdAt': FieldValue.serverTimestamp(),
         'likeCount': 0,
+      });
+
+      await storyRef.collection('chapters').add({
+        'title': 'Chapter 1',
+        'content': body,
+        'order': 1,
+        'createdAt': FieldValue.serverTimestamp(),
       });
 
       if (mounted) {
         _titleCtrl.clear();
         _bodyCtrl.clear();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Published to Inkwell 🎉')),
+          const SnackBar(content: Text('Published to Readoor 🎉')),
         );
       }
     } catch (e) {
@@ -114,6 +122,8 @@ class _StoryEditorPageState extends State<StoryEditorPage> {
             }).toList(),
           ),
           const SizedBox(height: 16),
+          Text('Chapter 1', style: Theme.of(context).textTheme.titleSmall),
+          const SizedBox(height: 8),
           TextField(
             controller: _bodyCtrl,
             maxLines: 12,
@@ -122,6 +132,11 @@ class _StoryEditorPageState extends State<StoryEditorPage> {
               hintText: 'Once upon a time...',
               border: OutlineInputBorder(),
             ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'You can add more chapters after publishing.',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey),
           ),
           const SizedBox(height: 16),
           SizedBox(
