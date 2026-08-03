@@ -15,13 +15,21 @@ class ChatListPage extends StatelessWidget {
     final chats = FirebaseFirestore.instance
         .collection('chats')
         .where('participants', arrayContains: me.uid)
-        .orderBy('lastTimestamp', descending: true)
         .snapshots();
 
     return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
       stream: chats,
       builder: (context, snapshot) {
-        final docs = snapshot.data?.docs ?? [];
+        if (snapshot.hasError) {
+          return Center(child: Text('Couldn\'t load chats: ${snapshot.error}', style: const TextStyle(color: Colors.redAccent)));
+        }
+        final docs = [...(snapshot.data?.docs ?? [])];
+        docs.sort((a, b) {
+          final aTime = a.data()['lastTimestamp'] as Timestamp?;
+          final bTime = b.data()['lastTimestamp'] as Timestamp?;
+          if (aTime == null || bTime == null) return 0;
+          return bTime.compareTo(aTime);
+        });
         if (docs.isEmpty) {
           return const Center(child: Text('No conversations yet. Add a friend and say hi!'));
         }

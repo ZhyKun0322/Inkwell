@@ -63,10 +63,18 @@ class MyProfilePage extends StatelessWidget {
                   stream: FirebaseFirestore.instance
                       .collection('stories')
                       .where('authorId', isEqualTo: me.uid)
-                      .orderBy('createdAt', descending: true)
                       .snapshots(),
                   builder: (context, storySnap) {
-                    final docs = storySnap.data?.docs ?? [];
+                    if (storySnap.hasError) {
+                      return Text('Couldn\'t load stories: ${storySnap.error}', style: const TextStyle(color: Colors.redAccent));
+                    }
+                    final docs = [...(storySnap.data?.docs ?? [])];
+                    docs.sort((a, b) {
+                      final aTime = a.data()['createdAt'] as Timestamp?;
+                      final bTime = b.data()['createdAt'] as Timestamp?;
+                      if (aTime == null || bTime == null) return 0;
+                      return bTime.compareTo(aTime);
+                    });
                     if (docs.isEmpty) return const Text('You haven\'t published anything yet.');
                     return Column(
                       children: docs.map((doc) {
