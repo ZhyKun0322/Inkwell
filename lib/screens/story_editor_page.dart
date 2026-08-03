@@ -1,6 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import '../widgets/avatar.dart';
+
+const List<String> storyGenres = [
+  'Fantasy', 'Romance', 'Horror', 'Sci-Fi', 'Mystery',
+  'Adventure', 'Slice of Life', 'Poetry', 'Other',
+];
 
 class StoryEditorPage extends StatefulWidget {
   const StoryEditorPage({super.key});
@@ -12,6 +18,8 @@ class StoryEditorPage extends StatefulWidget {
 class _StoryEditorPageState extends State<StoryEditorPage> {
   final _titleCtrl = TextEditingController();
   final _bodyCtrl = TextEditingController();
+  String _genre = storyGenres.first;
+  String _coverColor = avatarColorPalette.first;
   bool _publishing = false;
 
   Future<void> _publish() async {
@@ -29,7 +37,6 @@ class _StoryEditorPageState extends State<StoryEditorPage> {
 
     setState(() => _publishing = true);
     try {
-      // Look up the author's stored username so the feed doesn't need extra reads.
       final profile = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
       final authorName = (profile.data()?['username'] as String?) ?? user.displayName ?? 'Anonymous';
 
@@ -38,6 +45,8 @@ class _StoryEditorPageState extends State<StoryEditorPage> {
         'authorName': authorName,
         'title': title,
         'content': body,
+        'genre': _genre,
+        'coverColor': _coverColor,
         'createdAt': FieldValue.serverTimestamp(),
         'likeCount': 0,
       });
@@ -58,32 +67,63 @@ class _StoryEditorPageState extends State<StoryEditorPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           TextField(
             controller: _titleCtrl,
             style: Theme.of(context).textTheme.titleLarge,
-            decoration: const InputDecoration(
-              hintText: 'Story title',
-              border: InputBorder.none,
-            ),
+            decoration: const InputDecoration(hintText: 'Story title', border: InputBorder.none),
           ),
           const Divider(),
-          Expanded(
-            child: TextField(
-              controller: _bodyCtrl,
-              maxLines: null,
-              expands: true,
-              textAlignVertical: TextAlignVertical.top,
-              decoration: const InputDecoration(
-                hintText: 'Once upon a time...',
-                border: InputBorder.none,
-              ),
+          Text('Genre', style: Theme.of(context).textTheme.titleSmall),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: storyGenres.map((g) {
+              final selected = g == _genre;
+              return ChoiceChip(
+                label: Text(g),
+                selected: selected,
+                onSelected: (_) => setState(() => _genre = g),
+              );
+            }).toList(),
+          ),
+          const SizedBox(height: 16),
+          Text('Cover color', style: Theme.of(context).textTheme.titleSmall),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 10,
+            children: avatarColorPalette.map((hex) {
+              final selected = hex == _coverColor;
+              return GestureDetector(
+                onTap: () => setState(() => _coverColor = hex),
+                child: Container(
+                  width: 34,
+                  height: 34,
+                  decoration: BoxDecoration(
+                    color: colorFromHex(hex),
+                    shape: BoxShape.circle,
+                    border: selected ? Border.all(color: Colors.white, width: 3) : null,
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+          const SizedBox(height: 16),
+          TextField(
+            controller: _bodyCtrl,
+            maxLines: 12,
+            minLines: 8,
+            decoration: const InputDecoration(
+              hintText: 'Once upon a time...',
+              border: OutlineInputBorder(),
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
           SizedBox(
             width: double.infinity,
             child: FilledButton.icon(

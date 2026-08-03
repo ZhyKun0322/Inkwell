@@ -67,18 +67,26 @@ class _ChatPageState extends State<ChatPage> {
                     final isMe = d['senderId'] == me?.uid;
                     return Align(
                       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
-                      child: Container(
-                        margin: const EdgeInsets.symmetric(vertical: 4),
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                        decoration: BoxDecoration(
-                          color: isMe
-                              ? Theme.of(context).colorScheme.primary
-                              : Theme.of(context).colorScheme.surfaceContainerHighest,
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Text(
-                          d['text'] ?? '',
-                          style: TextStyle(color: isMe ? Theme.of(context).colorScheme.onPrimary : null),
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.72),
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(vertical: 4),
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                          decoration: BoxDecoration(
+                            color: isMe
+                                ? Theme.of(context).colorScheme.primary
+                                : Theme.of(context).colorScheme.surfaceContainerHighest,
+                            borderRadius: BorderRadius.only(
+                              topLeft: const Radius.circular(16),
+                              topRight: const Radius.circular(16),
+                              bottomLeft: Radius.circular(isMe ? 16 : 4),
+                              bottomRight: Radius.circular(isMe ? 4 : 16),
+                            ),
+                          ),
+                          child: Text(
+                            d['text'] ?? '',
+                            style: TextStyle(color: isMe ? Theme.of(context).colorScheme.onPrimary : null),
+                          ),
                         ),
                       ),
                     );
@@ -95,11 +103,18 @@ class _ChatPageState extends State<ChatPage> {
                   Expanded(
                     child: TextField(
                       controller: _msgCtrl,
-                      decoration: const InputDecoration(hintText: 'Message...', border: OutlineInputBorder()),
+                      decoration: InputDecoration(
+                        hintText: 'Message...',
+                        filled: true,
+                        fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(24), borderSide: BorderSide.none),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                      ),
                       onSubmitted: (_) => _send(),
                     ),
                   ),
-                  IconButton(icon: const Icon(Icons.send), onPressed: _send),
+                  const SizedBox(width: 4),
+                  IconButton.filled(icon: const Icon(Icons.send), onPressed: _send),
                 ],
               ),
             ),

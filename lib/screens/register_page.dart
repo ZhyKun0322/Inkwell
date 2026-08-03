@@ -37,6 +37,8 @@ class _RegisterPageState extends State<RegisterPage> {
         'displayName': _usernameCtrl.text.trim(),
         'bio': '',
         'photoUrl': '',
+        'avatarColor': '6B4EFF',
+        'avatarIcon': 'person',
         'createdAt': FieldValue.serverTimestamp(),
         'friendIds': [],
       });

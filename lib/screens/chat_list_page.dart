@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'chat_page.dart';
+import '../widgets/avatar.dart';
 
 class ChatListPage extends StatelessWidget {
   const ChatListPage({super.key});
@@ -34,9 +35,10 @@ class ChatListPage extends StatelessWidget {
             return FutureBuilder<DocumentSnapshot<Map<String, dynamic>>>(
               future: FirebaseFirestore.instance.collection('users').doc(otherUid).get(),
               builder: (context, userSnap) {
-                final username = userSnap.data?.data()?['username'] ?? '...';
+                final userData = userSnap.data?.data();
+                final username = userData?['username'] ?? '...';
                 return ListTile(
-                  leading: const CircleAvatar(child: Icon(Icons.person)),
+                  leading: UserAvatar(radius: 20, data: userData),
                   title: Text(username),
                   subtitle: Text(data['lastMessage'] ?? '', maxLines: 1, overflow: TextOverflow.ellipsis),
                   onTap: () => Navigator.of(context).push(

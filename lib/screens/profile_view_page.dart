@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'chat_page.dart';
 import 'story_reader_page.dart';
+import '../widgets/avatar.dart';
 
 class ProfileViewPage extends StatelessWidget {
   final String uid;
@@ -51,7 +52,7 @@ class ProfileViewPage extends StatelessWidget {
             padding: const EdgeInsets.all(20),
             child: Column(
               children: [
-                const CircleAvatar(radius: 44, child: Icon(Icons.person, size: 44)),
+                UserAvatar(radius: 44, data: data),
                 const SizedBox(height: 12),
                 Text(data['username'] ?? '', style: Theme.of(context).textTheme.headlineSmall),
                 if ((data['bio'] as String?)?.isNotEmpty == true)
@@ -103,9 +104,13 @@ class ProfileViewPage extends StatelessWidget {
                     return Column(
                       children: docs.map((doc) {
                         final d = doc.data();
+                        final coverColor = colorFromHex(d['coverColor'] as String?);
                         return Card(
+                          margin: const EdgeInsets.only(bottom: 8),
                           child: ListTile(
+                            leading: Container(width: 6, decoration: BoxDecoration(color: coverColor, borderRadius: BorderRadius.circular(3))),
                             title: Text(d['title'] ?? 'Untitled'),
+                            subtitle: Text((d['genre'] as String?) ?? 'Story'),
                             onTap: () => Navigator.of(context).push(
                               MaterialPageRoute(builder: (_) => StoryReaderPage(storyId: doc.id, data: d)),
                             ),

@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'find_friends_page.dart';
 import 'profile_view_page.dart';
+import '../widgets/avatar.dart';
 
 class FriendsPage extends StatelessWidget {
   const FriendsPage({super.key});
@@ -55,7 +56,7 @@ class FriendsPage extends StatelessWidget {
                   final data = userSnap.data?.data();
                   if (data == null) return const SizedBox.shrink();
                   return ListTile(
-                    leading: const CircleAvatar(child: Icon(Icons.person)),
+                    leading: UserAvatar(radius: 20, data: data),
                     title: Text(data['username'] ?? ''),
                     subtitle: Text(data['bio'] ?? ''),
                     onTap: () => Navigator.of(context).push(

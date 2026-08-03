@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'edit_profile_page.dart';
 import 'settings_page.dart';
 import 'story_reader_page.dart';
+import '../widgets/avatar.dart';
 
 class MyProfilePage extends StatelessWidget {
   const MyProfilePage({super.key});
@@ -36,7 +37,7 @@ class MyProfilePage extends StatelessWidget {
             padding: const EdgeInsets.all(20),
             child: Column(
               children: [
-                const CircleAvatar(radius: 44, child: Icon(Icons.person, size: 44)),
+                UserAvatar(radius: 44, data: data),
                 const SizedBox(height: 12),
                 Text(data['username'] ?? '', style: Theme.of(context).textTheme.headlineSmall),
                 Text(me.email ?? '', style: Theme.of(context).textTheme.bodySmall),
@@ -70,9 +71,13 @@ class MyProfilePage extends StatelessWidget {
                     return Column(
                       children: docs.map((doc) {
                         final d = doc.data();
+                        final coverColor = colorFromHex(d['coverColor'] as String?);
                         return Card(
+                          margin: const EdgeInsets.only(bottom: 8),
                           child: ListTile(
+                            leading: Container(width: 6, decoration: BoxDecoration(color: coverColor, borderRadius: BorderRadius.circular(3))),
                             title: Text(d['title'] ?? 'Untitled'),
+                            subtitle: Text((d['genre'] as String?) ?? 'Story'),
                             onTap: () => Navigator.of(context).push(
                               MaterialPageRoute(builder: (_) => StoryReaderPage(storyId: doc.id, data: d)),
                             ),

@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'profile_view_page.dart';
+import '../widgets/avatar.dart';
 
 class FindFriendsPage extends StatefulWidget {
   const FindFriendsPage({super.key});
@@ -61,7 +62,7 @@ class _FindFriendsPageState extends State<FindFriendsPage> {
                 final doc = _results[i];
                 final data = doc.data();
                 return ListTile(
-                  leading: const CircleAvatar(child: Icon(Icons.person)),
+                  leading: UserAvatar(radius: 20, data: data),
                   title: Text(data['username'] ?? ''),
                   subtitle: Text(data['bio'] ?? ''),
                   onTap: () => Navigator.of(context).push(
